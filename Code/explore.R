@@ -197,6 +197,37 @@ m10Imp = ergm(collapse_pumanet ~ edges + mutual + edgecov(related) + edgecov(ove
              gwidegree(.25, fixed = TRUE) + gwodegree(.25, fixed = TRUE))
 stargazer(m10, m10Imp, type = "text", single.row = TRUE)
 
+m11 = ergm(collapse_pumanet ~ edges + mutual + edgecov(related) + edgecov(overlap) +
+             nodeifactor("sex") + nodeofactor("sex") + nodematch("sex", diff = FALSE) +
+             gwidegree(.25, fixed = TRUE) + gwodegree(.25, fixed = TRUE) + gwesp(.25, TRUE),
+           control = control.ergm(init = c(coef(m10Imp), 0)))
+
+m12 = ergm(collapse_pumanet ~ edges + mutual + edgecov(related) + edgecov(overlap) +
+             nodeifactor("sex") + nodeofactor("sex") + nodematch("sex", diff = FALSE) +
+             gwidegree(.25, fixed = TRUE) + gwodegree(.25, fixed = TRUE) + 
+             dgwesp(.25, TRUE, type = "OTP") + dgwesp(.25, TRUE, type = "ITP"),
+           control = control.ergm(init = c(coef(m10Imp), 0, 0)))
+
+# Try paring that down (and change bump decay)
+m13 = ergm(collapse_pumanet ~ edges + mutual + edgecov(related) + edgecov(overlap) +
+             nodeifactor("sex") + nodeofactor("sex") + 
+             gwidegree(.5, fixed = TRUE) + gwodegree(.5, fixed = TRUE) + 
+             dgwesp(.25, TRUE, type = "OTP") + dgwesp(.25, TRUE, type = "ITP"),
+           control = control.ergm(init = coef(m12)[c(1:6, 8:11)]))
+
+m14 = ergm(collapse_pumanet ~ edges + mutual + edgecov(related) + edgecov(overlap) +
+             nodeifactor("sex") + nodeofactor("sex") + 
+             gwidegree(.5, fixed = TRUE) + gwodegree(.5, fixed = TRUE) + 
+             dgwesp(.25, TRUE, type = "OTP"),
+           control = control.ergm(init = coef(m13)[-length(coef(m13))]))
+
+stargazer(m10Imp, m11, m12, m13, m14, type = "text", single.row = TRUE)
+
+bterms = c("density", "reciprocity", "relatedness", "territory overlap",
+           "male receiving", "male sharing", "even-distribution receiving", 
+           "even-distribution sharing", "transitivity", "cyclicality")
+stargazer(m13, type = "text", single.row = TRUE, covariate.labels = bterms)
+
 # Valued edges
 as.matrix(collapse_pumanet, attrname = "n")
 summary(collapse_pumanet ~ sum,
@@ -280,3 +311,152 @@ system.time({
             ))
 })
 stargazer(v1, v2, v5, v6, v7, type = "text")
+# Didn't converge after 50 iterations. Lots of transitivity but huge negative nonzero wo SE
+# Try w/o nonzero term and with trustregion at default
+
+system.time({  # 9 min
+  v8 = ergm(collapse_pumanet ~ sum + mutual(form = "min") +
+              nodeifactor("sex") + nodeofactor("sex") + nodematch("sex") +
+              edgecov(overlap) + edgecov(related) +
+              transitiveweights("min","max","min") ,
+            reference = ~ Geometric,
+            response = "n",
+            control = control.ergm(init = c(coef(v6)[-2], 0),
+                                   MCMLE.trustregion = 100,  # Not sure if this is appropriate for geometric dist
+                                   MCMC.samplesize = 5e3,
+                                   MCMLE.maxit = 50
+            ))
+})
+saveRDS(v8, "models/count-ergm-trans.RDS")
+# Negative transativity! But it falls out when cyclic triads are included
+
+stargazer(v1, v2, v5, v6, v8, type = "text")
+
+terms = c("density", "reciprocity", "male-receiving", "male-sharing", "same-sex",
+          "range-overlap", "relatedness", "transitivity")
+stargazer(v8, type = "text", single.row = TRUE, covariate.labels = terms)
+
+
+system.time({  # 90 sec
+  v9 = ergm(collapse_pumanet ~ sum + mutual(form = "min") +
+              nodeifactor("sex") + nodeofactor("sex") + nodematch("sex") +
+              edgecov(overlap) + edgecov(related) +
+              transitiveweights("min","max","min") ,
+            reference = ~ Geometric,
+            response = "n",
+            control = control.ergm(init = c(coef(v6)[-2], 0),
+                                   # MCMLE.trustregion = 100,  # Not sure if this is appropriate for geometric dist
+                                   # MCMC.samplesize = 5e3,
+                                   # MCMLE.maxit = 50
+            ))
+})
+stargazer(v8, v9, type= "text")  # Controls were unnecessary. The nonzero terms was just getting in the way
+
+v10 = ergm(collapse_pumanet ~ sum + mutual(form = "min") +
+             nodeifactor("sex") + nodeofactor("sex") + nodematch("sex") +
+             edgecov(overlap) + edgecov(related) +
+             transitiveweights("min","max","min") +
+             cyclicalweights("min","max","min") ,
+           reference = ~ Geometric,
+           response = "n",
+           control = control.ergm(init = c(coef(v8), 0)))
+
+v11 = ergm(collapse_pumanet ~ sum + mutual(form = "min") +
+             nodeifactor("sex") + nodeofactor("sex") + nodematch("sex") +
+             edgecov(overlap) + edgecov(related) +
+             transitiveweights("geomean","max","geomean") +
+             cyclicalweights("geomean","max","geomean") ,
+           reference = ~ Geometric,
+           response = "n",
+           control = control.ergm(init = c(coef(v8), 0)))
+
+v12 = ergm(collapse_pumanet ~ sum + mutual(form = "geometric") +
+             nodeifactor("sex") + nodeofactor("sex") + nodematch("sex") +
+             edgecov(overlap) + edgecov(related) +
+             transitiveweights("geomean","max","geomean") +
+             cyclicalweights("geomean","max","geomean") ,
+           reference = ~ Geometric,
+           response = "n",
+           control = control.ergm(init = coef(v11)))
+stargazer(v8, v10, v11, v12, type = "text")  
+
+v13 = ergm(collapse_pumanet ~ sum + nonzero + mutual(form = "geometric") +
+             nodeifactor("sex") + nodeofactor("sex") + nodematch("sex") +
+             edgecov(overlap) + edgecov(related) +
+             transitiveweights("geomean","max","geomean") +
+             cyclicalweights("geomean","max","geomean") ,
+           reference = ~ Geometric,
+           response = "n",
+           control = control.ergm(init = c(coef(v12)[1], -2, coef(v12)[2:length(coef(v12))])))
+# Error in eigen(crossprod(x1c), symmetric = TRUE) : 
+#   infinite or missing values in 'x' 
+### Maybe should be using 0-infl pois
+### Try first for model 12 which was converging
+
+v12p = ergm(collapse_pumanet ~ sum + mutual(form = "geometric") +
+             nodeifactor("sex") + nodeofactor("sex") + nodematch("sex") +
+             edgecov(overlap) + edgecov(related) +
+             transitiveweights("geomean","max","geomean") +
+             cyclicalweights("geomean","max","geomean") ,
+           reference = ~ Poisson,
+           response = "n",
+           control = control.ergm(init = coef(v12)))
+stargazer(v12, v12p, type = "text")  # Pois looks better resolved. Try nonzero in there
+
+# For comparison
+v6p = ergm(collapse_pumanet ~ sum + nonzero + mutual(form = "min") +
+             nodeifactor("sex") + nodeofactor("sex") + nodematch("sex") +
+             edgecov(overlap) + edgecov(related),
+           reference = ~ Poisson,
+           response = "n",
+           control = control.ergm(init = coef(v6),
+                                  MCMLE.trustregion=100,
+                                  MCMC.prop.weights="0inflated",
+                                  MCMC.prop.args=list(p0=0.5)))
+# Super efficient sampling!
+stargazer(v6, v6p, type = "text")  # Very similar story
+
+v13 = ergm(collapse_pumanet ~ sum + nonzero + mutual(form = "geometric") +
+             nodeifactor("sex") + nodeofactor("sex") + nodematch("sex") +
+             edgecov(overlap) + edgecov(related) +
+             transitiveweights("geomean","max","geomean") +
+             cyclicalweights("geomean","max","geomean") ,
+           reference = ~ Poisson,
+           response = "n",
+           control = control.ergm(init = c(coef(v12)[1], -2, coef(v12)[2:length(coef(v12))])),
+           MCMLE.trustregion=100,
+           MCMC.prop.weights="0inflated",
+           MCMC.prop.args=list(p0=0.5))
+summary(v13)
+# non-convergence. Tried longer chains it stalled out (likelihood didn't improve x 40)
+
+# Try trimming it down a little.  Want transitivity and nonzero
+v13 = ergm(collapse_pumanet ~ sum + nonzero + mutual(form = "min") +
+             nodeifactor("sex") + nodeofactor("sex") + 
+             edgecov(overlap) + edgecov(related) +
+             transitiveweights("geomean","max","geomean") +
+             cyclicalweights("geomean","max","geomean") ,
+           reference = ~ Poisson,
+           response = "n",
+           control = control.ergm(init = c(coef(v6p)[-6], 0, 0),
+                                  # MCMLE.trustregion=100,
+                                  MCMC.prop.weights="0inflated",
+                                  MCMC.prop.args=list(p0=0.5)))
+terms = c("density", "any shares", "reciprocity", "male receiving", "male sharing",
+          "territory overlap", "relatedness", "transitivity", "cyclicality")
+stargazer(v13, type = "text", single.row = TRUE, covariate.labels = terms)
+
+v14 = ergm(collapse_pumanet ~ sum + nonzero + mutual(form = "geometric") +
+             nodeifactor("sex") + nodeofactor("sex") + 
+             edgecov(overlap) + edgecov(related) +
+             transitiveweights("geomean","max","geomean") +
+             cyclicalweights("geomean","max","geomean") ,
+           reference = ~ Poisson,
+           response = "n",
+           control = control.ergm(init = coef(v13),
+                                  MCMC.prop.weights="0inflated",
+                                  MCMC.prop.args=list(p0=0.5)))
+stargazer(v14, type = "text", single.row = TRUE, covariate.labels = terms)
+# Winner! Right now, the two leading models are v14 and m13. Go ahead and save all.
+ergms = Filter(function(x) inherits(get(x), "ergm"), ls())
+save(list = ergms, file = "models/exploratoryERGMs.RDA")
