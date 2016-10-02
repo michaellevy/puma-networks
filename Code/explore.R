@@ -7,6 +7,8 @@ library(stargazer)
 el = read_csv("data/derived/edgelist.csv")
 dyadAttr = read_csv("data/derived/dyadInfo.csv")
 nodeAttr = read_csv("data/derived/nodeInfo.csv")
+pumanet = readRDS("data/derived/network.RDS")
+collapse_pumanet = readRDS("data/derived/simpleNet.RDS")
 
 ggplot(dyadAttr, aes(x = relatedness, y = propOverlap, color = sexPair)) + 
   geom_point()
@@ -14,12 +16,6 @@ ggplot(dyadAttr, aes(x = relatedness, y = propOverlap, color = sexPair)) +
 ggplot(nodeAttr, aes(x = age_months, y = weight_kg, color = sex)) + 
   geom_point(size = 3)
 
-pumanet = 
-  igraph::graph_from_data_frame(el, directed = TRUE, vertices = nodeAttr) %>%
-  intergraph::asNetwork()
-# Remove F59 since the data on her was spotty
-delete.vertices(pumanet, which(pumanet %v% "vertex.names" == "F59"))
-# saveRDS(pumanet, "data/derived/network.RDS")
 
 vSize = 3 * pumanet %v% "weight_kg" / max(pumanet %v% "weight_kg", na.rm = TRUE)
 vSize[is.na(vSize)] = .1
@@ -42,19 +38,13 @@ dyadAttr$n[is.na(dyadAttr$n)]=0
 names(dyadAttr)[8]="NumShares"
 
 #correlation matrix to see if genetic relatedness and range overlap covary
-cor(dyadAttr[,c("NumShares", "relatedness", "propOverlap")])
+round(cor(dyadAttr[,c("NumShares", "relatedness", "propOverlap")]), 2)
 
 #regression number of shares in dyadic unit analysis to see basic relationships
 share_regression<-lm(NumShares~propOverlap+relatedness+sexPair, dyadAttr)
 summary(share_regression)
 
-collapse_pumanet = 
-  count(el, cat1, cat2) %>% 
-  igraph::graph_from_data_frame(directed = TRUE, vertices = nodeAttr) %>%
-  intergraph::asNetwork()
-# Remove F59 since the data on her was spotty
-delete.vertices(collapse_pumanet, which(collapse_pumanet %v% "vertex.names" == "F59"))
-
+### Work with the individual edges with number of kills-shared as edge attr
 wt = collapse_pumanet %v% "weight_kg"
 wt[is.na(wt)] = mean(wt, na.rm = TRUE)
 age = collapse_pumanet %v% "age_months"
@@ -70,7 +60,6 @@ plot(collapse_pumanet
      , usecurve = TRUE
      , edge.curve = .02
      )
-
 
 # Copy network and delete uncollared F's to see how the descriptives change
 trim_pumanet = collapse_pumanet
@@ -158,37 +147,14 @@ stargazer(m10, type = "text", single.row = TRUE)  # Makes no difference
 # Both the triples don't mix well, even with nothing else in there:
 # m11 = ergm(trim_pumanet ~ edges + mutual + ctriple)
 
-###### Mean-impute all the missingness associated with the UncF's and see what the models say then:
-# Age use overall mean; weight use mean among females only.
-femMeanWt = mean((collapse_pumanet %v% "weight_kg")[collapse_pumanet %v% "sex" == "F"], na.rm = TRUE)
-set.vertex.attribute(collapse_pumanet, "age_months", 
-                     rep(mean(collapse_pumanet %v% "age_months", na.rm = TRUE), 2), 
-                     grep("Unc", collapse_pumanet %v% "vertex.names"))
-set.vertex.attribute(collapse_pumanet, "weight_kg", 
-                     rep(femMeanWt, 2), 
-                     grep("Unc", collapse_pumanet %v% "vertex.names"))
 
-# Create all the possile pairings for the UncF's, in both directions
-uncNames = grep("Unc", collapse_pumanet %v% "vertex.names", value = TRUE)
-pairs = expand.grid(cat1 = uncNames,
-                    cat2 = unique(c(dyadAttr$cat1, dyadAttr$cat2)),
-                    stringsAsFactors = FALSE) %>%
-  rbind(uncNames) %>%
-  mutate(relatedness = mean(dyadAttr$relatedness),
-         propOverlap = mean(dyadAttr$propOverlap),
-         sex1 = "F",
-         sex2 = str_sub(cat2, 1, 1),
-         sexPair = paste0(sex2, sex1))
-dyadAttrImp = 
-  rbind(pairs,
-        select(pairs, cat1 = cat2, cat2 = cat1, relatedness, propOverlap, 
-               sex1 = sex2, sex2 = sex1, sexPair),
-        dyadAttr) 
+####### Imputation was here some data are not going to be loaded here
 
-related = spread(dyadAttrImp[, 1:3], cat1, relatedness)[, -1] %>% as.matrix()
+
+related = spread(dyadAttr[, 1:3], cat1, relatedness)[, -1] %>% as.matrix()
 ord = match(collapse_pumanet %v% "vertex.names", colnames(related))
 related = related[ord, ord]
-overlap = spread(dyadAttrImp[, c(1, 2, 4)], cat1, propOverlap)[, -1] %>% as.matrix()
+overlap = spread(dyadAttr[, c(1, 2, 4)], cat1, propOverlap)[, -1] %>% as.matrix()
 overlap = overlap[ord, ord]
 diag(related) = diag(overlap) = 1
 

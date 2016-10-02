@@ -114,12 +114,3 @@ if(FALSE) { # Wrote these, sent to ME, he sent back responses
   write.csv(d, "data/derived/dyadInfo.csv", row.names = FALSE)
 }
 
-# Read cat attribute data, make a sex variable, and add unknown females
-nodeAttr = read_csv("data/raw/attributes.csv")
-nodeAttr$sex = str_sub(nodeAttr$cat, 1, 1)
-nodeAttr = 
-  rbind(nodeAttr, data.frame(cat = c("UncF", "UncF2"),
-                             weight_kg = NA,
-                             age_months = NA,
-                             sex = "F"))
-write_csv(nodeAttr, "data/derived/nodeInfo.csv")
