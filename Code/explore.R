@@ -148,7 +148,9 @@ stargazer(m10, type = "text", single.row = TRUE)  # Makes no difference
 # m11 = ergm(trim_pumanet ~ edges + mutual + ctriple)
 
 
-####### Imputation was here some data are not going to be loaded here
+####### Imputation was here some data are not going to be loaded here And I 
+# did a comparison of trimmed vs imputed data. Now the mean-imputed values are there
+# from the beginning.
 
 
 related = spread(dyadAttr[, 1:3], cat1, relatedness)[, -1] %>% as.matrix()
