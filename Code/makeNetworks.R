@@ -40,22 +40,10 @@ dyadAttr =
                sex1 = sex2, sex2 = sex1, sexPair),
         dyadAttr) 
 
-
-
-# And save network objects
-# Multinet:
+# Save network objects
 pumanet = 
   igraph::graph_from_data_frame(el, directed = TRUE, vertices = nodeAttr) %>%
   intergraph::asNetwork()
 # Remove F59 since the data on her was spotty
 delete.vertices(pumanet, which(pumanet %v% "vertex.names" == "F59"))
 saveRDS(pumanet, "data/derived/network.RDS")
-
-# Single edges with number of kills as attribute (n) of edges:
-collapse_pumanet = 
-  count(el, cat1, cat2) %>% 
-  igraph::graph_from_data_frame(directed = TRUE, vertices = nodeAttr) %>%
-  intergraph::asNetwork()
-# Remove F59 since the data on her was spotty
-delete.vertices(collapse_pumanet, which(collapse_pumanet %v% "vertex.names" == "F59"))
-saveRDS(collapse_pumanet, "data/derived/simpleNet.RDS")

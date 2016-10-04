@@ -1,39 +1,54 @@
 library(statnet)
 library(tidyverse)
+library(stringr)
+library(netUtils)
 source("Code/functions.R")
-empNet = readRDS("data/derived/simpleNet.RDS")
-sexes = empNet %v% "sex"
+net = readRDS("data/derived/network.RDS")
 
-st = table(empNet %v% "sex")  # 9 Fs, 5 Ms. So, possible ties:
-ft = c(st[1] * (st[1] - 1), rep(st[1] * st[2], 2), st[2] * (st[2] - 1))
-
-calcStats(empNet)
-
-
-# CUG Tests
-
+# For both tests it's about 10s per 100 nsim.
 nsim = 1e4
-nodes = network.size(empNet)
-edges = network.edgecount(empNet)
+sexes = net %v% "sex"
 simNets = 
   replicate(nsim, {
-    n = network(rgnm(n = 1, nv = nodes, m = edges))
+    n = simMultiNet(network.size(net), network.edgecount(net))
     n %v% "sex" = sample(sexes)
     n
     }, simplify = FALSE)
 
 system.time({
-  simStats = lapply(simNets, calcStats)  
+  vCUG = runGUGs(net, simNets)
 })
+saveRDS(vCUG, "models/valuedCUGs.RDS")
+# The edges are much more distributed in these, of course. Maybe more useful to simulate binary networks.
+par(mfrow = c(1, 2))
+plot(collapseMultiNet(net)
+     , arrowhead.cex = 2
+     , vertex.col = "sex"
+     , vertex.cex = 3
+     , edge.lwd = "NumberTies"
+     , usecurve = TRUE
+     , edge.curve = .001
+     , main = "Empirical"
+)
+plot(collapseMultiNet(simNets[[1]])
+     , arrowhead.cex = 2
+     , vertex.col = "sex"
+     , vertex.cex = 3
+     , edge.lwd = "NumberTies"
+     , usecurve = TRUE
+     , edge.curve = .001
+     , main = "Simulated"
+)
 
-ss = lapply(simStats, unlist, recursive = FALSE) %>% do.call(rbind, .)
-es = unlist(calcStats(empNet))
-
-cugs = data.frame(
-  statistic = lapply(calcStats(empNet), names) %>% do.call(c, .),
-  empirical_value = es,
-  p_sim_greater = sapply(seq_along(es), function(i) sum(es[i] < ss[, i])) / nrow(ss),
-  row.names = NULL)
-  
-cugs = cugs[order(cugs$p_sim_greater), ]
-saveRDS(cugs, "models/CUGtests.RDS")
+# Simulate binary networks
+cNet = collapseMultiNet(net)
+simNets = 
+  replicate(nsim, {
+    n = network(rgnm(n = 1, nv = network.size(cNet), m = network.edgecount(cNet)))
+    n %v% "sex" = sample(cNet %v% "sex")
+    n
+  }, simplify = FALSE)
+system.time({
+  CUG = runGUGs(cNet, simNets)
+})
+saveRDS(CUG, "models/binaryCUGs.RDS")
