@@ -50,6 +50,7 @@ wt[is.na(wt)] = mean(wt, na.rm = TRUE)
 age = collapse_pumanet %v% "age_months"
 age[is.na(age)] = mean(age, na.rm = TRUE)
 
+png("results/netDiagram.png", width = 400, height = 400)
 plot(collapse_pumanet
      , vertex.col = "sex"
      , arrowhead.cex = 2
@@ -60,6 +61,7 @@ plot(collapse_pumanet
      , usecurve = TRUE
      , edge.curve = .02
      )
+dev.off()
 
 # Copy network and delete uncollared F's to see how the descriptives change
 trim_pumanet = collapse_pumanet
@@ -424,7 +426,10 @@ v14 = ergm(collapse_pumanet ~ sum + nonzero + mutual(form = "geometric") +
            control = control.ergm(init = coef(v13),
                                   MCMC.prop.weights="0inflated",
                                   MCMC.prop.args=list(p0=0.5)))
-stargazer(v14, type = "text", single.row = TRUE, covariate.labels = terms)
+tab = stargazer(v14, type = "text", single.row = TRUE, covariate.labels = terms)
 # Winner! Right now, the two leading models are v14 and m13. Go ahead and save all.
 ergms = Filter(function(x) inherits(get(x), "ergm"), ls())
 save(list = ergms, file = "models/exploratoryERGMs.RDA")
+
+load("models/exploratoryERGMs.RDA")
+writeLines(tab, "results/valuedERGM.txt")

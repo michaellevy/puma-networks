@@ -1,11 +1,14 @@
-runGUGs = function(empNet, simNets) {
+runGUGs = function(simNets, empNet = NULL, returnAllSims = FALSE) {
   
-  if(is.multiplex(empNet) != is.multiplex(simNets[[1]]))
+  if(!returnAllSims && is.multiplex(empNet) != is.multiplex(simNets[[1]]))
     stop("Multiplexity of empirical and simulated networks don't match.")
   
   simStats = lapply(simNets, calcStats)  
   
   ss = lapply(simStats, unlist, recursive = FALSE) %>% do.call(rbind, .)
+  if(returnAllSims)
+    return(ss)
+  
   es = unlist(calcStats(empNet))
   
   cugs = data.frame(

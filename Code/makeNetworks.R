@@ -39,6 +39,7 @@ dyadAttr =
         select(pairs, cat1 = cat2, cat2 = cat1, relatedness, propOverlap, 
                sex1 = sex2, sex2 = sex1, sexPair),
         dyadAttr) 
+write_csv(dyadAttr, "data/derived/dyadInfo.csv")
 
 # Save network objects
 pumanet = 
