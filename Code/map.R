@@ -54,11 +54,13 @@ lay$y[is.na(lay$y)] = quantile(lay$y, uncloc, na.rm = T)
 attributes(lay) = ats
 
 
-filter(oneeach, ISOPLETH == .95, cat %in% c("M62", "M68", "M29", "M85")) %>%
+filter(oneeach, ISOPLETH == .95, cat %in% c("M29", "M85")) %>%
+# filter(oneeach, ISOPLETH == .95, cat %in% c("M62", "M68", "M29", "M85")) %>%
   ggplot() +
   geom_polygon(aes(x = long, y = lat, group = interaction(group, cat), 
                    fill = cat), alpha = .7) +
-  scale_fill_brewer(palette = "Set1", name = "Active Males'\nTerritories") +
+  scale_fill_brewer(palette = "Set1", name = "Territorial Males") +
+  # scale_fill_brewer(palette = "Set1", name = "Active Males'\nTerritories") +
   coord_equal() +
   ggforce::theme_no_axes() +
   geom_edge_fan(data = gEdges()(lay), aes(alpha = ..index..)) +
