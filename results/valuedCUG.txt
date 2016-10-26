@@ -1,0 +1,9 @@
+
+===============================================
+statistic         empirical_value p_sim_greater
+-----------------------------------------------
+outCentralization      1.178            0      
+modularity             0.447            0      
+edgeVar                2.182            0      
+inCentralization       1.012         0.0001    
+-----------------------------------------------

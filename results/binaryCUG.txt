@@ -1,0 +1,11 @@
+
+===============================================
+statistic         empirical_value p_sim_greater
+-----------------------------------------------
+reciprocity            0.231            0      
+transitivity           0.381         0.0004    
+modularity             0.384          0.014    
+clustering             0.404          0.019    
+outCentralization      0.260          0.060    
+inCentralization       0.178          0.299    
+-----------------------------------------------
