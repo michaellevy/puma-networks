@@ -1,7 +1,9 @@
 /models/
 /data/
+/papers/
 .DS_Store
 .dropbox
+*.pdf
 
 # History files
 .Rhistory

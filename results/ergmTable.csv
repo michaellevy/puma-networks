@@ -1,0 +1,12 @@
+term,binary_edges,valued_edges
+density,-3.62*** (0.84),0.52* (0.20)
+reciprocity,2.15** (0.81),0.83** (0.29)
+relatedness,2.58 (2.03),0.35 (0.64)
+territory overlap,1.07 (0.98),0.72* (0.31)
+male receiving,0.58 (0.51),0.38** (0.14)
+male sharing,-0.67 (0.45),-0.68** (0.23)
+transitivity,0.93. (0.47),0.29* (0.13)
+cyclicality,-0.21 (0.36),-0.09 (0.13)
+even-distribution receiving,1.54 (1.10),.
+even-distribution sharing,-0.54 (0.96),.
+any shares,.,-4.59*** (0.39)

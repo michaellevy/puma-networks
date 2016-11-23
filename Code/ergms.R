@@ -6,6 +6,7 @@ library(stargazer)
 net = readRDS("data/derived/network.RDS")
 binaryNet = collapseMultiNet(net)
 dyadAttr = read_csv("data/derived/dyadInfo.csv")
+set.seed(5723)
 
 related = spread(dyadAttr[, 1:3], cat1, relatedness)[, -1] %>% as.matrix()
 ord = match(net %v% "vertex.names", colnames(related))
@@ -60,6 +61,7 @@ bSummary =
   select(term, binary_edges)
 
 full_join(bSummary, vSummary, by = "term")[c(1:6, 9:10, 7:8, 11), ] %>%
-  stargazer(type = "text", summary = FALSE, 
-            notes  = "*** p < .001, ** p < .01, * p < .05",
-            out = "results/modelsTable.txt") 
+  write_csv("results/ergmTable.csv", na = ".")
+  # stargazer(type = "text", summary = FALSE, rownames = FALSE,
+  #           notes  = "*** p < .001, ** p < .01, * p < .05",
+  #           out = "results/modelsTable.txt") 

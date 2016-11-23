@@ -53,27 +53,56 @@ lay$x[is.na(lay$x)] = quantile(lay$x, uncloc, na.rm = T)
 lay$y[is.na(lay$y)] = quantile(lay$y, uncloc, na.rm = T)
 attributes(lay) = ats
 
+# Manually jitter some locations to clarify the visual:
+move = function(cat, x, y = x, scl = diff(range(lay$x))) {
+  theCat = lay$vertex.names == cat
+  lay$x[theCat] = lay$x[theCat] + x * scl
+  lay$y[theCat] = lay$y[theCat] + y * scl
+  lay
+}
+lay = move("M62", .1)
+lay = move("F47", .03, -.13)
+lay = move("F57", -.07)
+lay = move("F61", -.06, 0)
+lay = move("F51", 0, .04)
+lay = move("M21", -.1, 0)
+lay = move("M85", .04, 0)
 
-filter(oneeach, ISOPLETH == .95, cat %in% c("M29", "M85")) %>%
-# filter(oneeach, ISOPLETH == .95, cat %in% c("M62", "M68", "M29", "M85")) %>%
+baseplot = 
+  filter(oneeach, ISOPLETH == .95, cat %in% c("M62", "M68", "M29", "M85")) %>%
   ggplot() +
   geom_polygon(aes(x = long, y = lat, group = interaction(group, cat), 
                    fill = cat), alpha = .7) +
   scale_fill_brewer(palette = "Set1", name = "Territorial Males") +
   # scale_fill_brewer(palette = "Set1", name = "Active Males'\nTerritories") +
   coord_equal() +
-  ggforce::theme_no_axes() +
+  ggforce::theme_no_axes(base.theme = theme_bw(base_size = 18)) +
   geom_edge_fan(data = gEdges()(lay), aes(alpha = ..index..)) +
-  scale_edge_alpha('Shared kill with', guide = 'edge_direction') +
-  geom_point(data = lay, mapping = aes(x = x, y = y, shape = sex), size = 2, color = "darkgray", fill = "gray") +
+  scale_edge_alpha('Shared kill with', guide = 'edge_direction') 
+
+  # geom_point(data = lay, mapping = aes(x = x, y = y, shape = sex), 
+  #            size = 2, color = "darkgray", fill = "gray") +
+baseplot + 
   scale_shape_manual(values = c("M" = 24, "F" = 25), guide = "none") +
   geom_text(data = lay, mapping = aes(x = x, y = y, label = vertex.names)
             # , vjust = 0, nudge_y = -2e3
-            , vjust = "outward", hjust = "outward"
-            , size = 3, fontface = "bold"
-  ) 
-ggsave("results/mapWithNetwork.png", height = 5, width = 6)
-  
+            # , vjust = "outward", hjust = "outward"
+            , size = 5, fontface = "bold"
+            , color = "white" ) +
+  theme(panel.background = element_rect(fill = "gray"))
+ggsave("results/mapWithNetwork-Style1.pdf", height = 8, width = 10)
+
+# OR 
+baseplot + 
+  geom_point(data = lay, mapping = aes(x = x, y = y, shape = sex),
+             size = 2, color = "darkgray", fill = "gray") +
+  scale_shape_manual(values = c("M" = 24, "F" = 25), guide = "none") +
+  geom_text(data = lay, mapping = aes(x = x, y = y, label = vertex.names)
+            # , vjust = 0, nudge_y = -2e3
+            , vjust = "outward", hjust = "outward", 
+            , size = 5, fontface = "bold")
+ggsave("results/mapWithNetwork-Style2.pdf", height = 8, width = 10)
+
 
 # Retired
 #########

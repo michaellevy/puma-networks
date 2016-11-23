@@ -80,7 +80,10 @@ filter(vstats, str_detect(statistic, "^V|(Var)")) %>%
 
 filter(bstats, !str_detect(statistic, "(^tc)|(sex)")) %>% 
   arrange(p_sim_greater) %>%
-  stargazer(type = "text", out = "results/binaryCUG.txt", summary = FALSE, rownames = FALSE)
+  # stargazer(type = "text", out = "results/binaryCUG.txt", summary = FALSE, rownames = FALSE)
+  mutate(empirical_value = round(empirical_value, 2),
+         p_sim_greater = round(p_sim_greater, 4)) %>%
+  htmlTable::htmlTable()
 
 
 #### Or, maybe we want the whole simulated distribution.

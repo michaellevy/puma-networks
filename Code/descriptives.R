@@ -24,7 +24,8 @@ select(dyadAttr, propOverlap, n, invShares) %>%
   ggplot(aes(x = propOverlap, y = num, color = type)) +
   geom_point() + 
   geom_smooth(method = "lm")
-# As more of cat1's territory is also occupied by cat2, the more cat1 shares with cat2, but it's not the case that cat1 also receives more from cat2.
+# As more of cat1's territory is also occupied by cat2, the more cat1 shares with cat2, 
+# but it's not the case that cat1 also receives more from cat2.
 
 # Correlation of number of kills shared with relatedness and territory overlap:
 round(cor(dyadAttr[, c(3, 4, 8)])[1:2, 3], 3)
@@ -44,7 +45,8 @@ cors = cor(ndf)
 prunedcors = cors[1:2, 2:5]
 prunedcors[2, 1] = NA
 
-round(rbind(t(prunedcors[, 2:4]), dyadCor), 3)
+(ct = round(rbind(t(prunedcors[, 2:4]), dyadCor), 3))
+htmlTable::htmlTable(ct)
 
 corrplot::corrplot(cors, method = "ellipse", type = "lower", 
                    diag = F, tl.col = "black", addCoef.col = "black")
