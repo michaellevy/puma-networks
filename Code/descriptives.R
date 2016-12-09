@@ -50,3 +50,7 @@ htmlTable::htmlTable(ct)
 
 corrplot::corrplot(cors, method = "ellipse", type = "lower", 
                    diag = F, tl.col = "black", addCoef.col = "black")
+
+x = intergraph::asIgraph(net) %>%
+  igraph::as_adj(sparse = FALSE)
+max(x + t(x))

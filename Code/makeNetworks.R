@@ -15,6 +15,11 @@ nodeAttr =
                              age_months = NA,
                              sex = "F"))
 
+# For textual summary
+group_by(nodeAttr, sex) %>%
+  summarize(meanAge = mean(age_months, na.rm = TRUE),
+            meanWeight = mean(weight_kg, na.rm = TRUE))
+
 ########## Mean impute missing values
 # Age use overall mean; weight use mean among females only.
 nodeAttr$weight_kg[is.na(nodeAttr$weight_kg)] = mean(nodeAttr$weight_kg[nodeAttr$sex == "F"], na.rm = TRUE)

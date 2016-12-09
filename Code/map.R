@@ -77,20 +77,40 @@ baseplot =
   # scale_fill_brewer(palette = "Set1", name = "Active Males'\nTerritories") +
   coord_equal() +
   ggforce::theme_no_axes(base.theme = theme_bw(base_size = 18)) +
-  geom_edge_fan(data = gEdges()(lay), aes(alpha = ..index..)) +
-  scale_edge_alpha('Shared kill with', guide = 'edge_direction') 
+  geom_edge_fan(data = gEdges()(lay), aes(alpha = ..index..), 
+                spread = 1.8, n = 300, edge_width = .7) +
+  # scale_edge_alpha('Shared kill with', guide = 'edge_direction', range = 0:1) 
+  scale_edge_alpha('Shared kill with', guide = FALSE, range = 0:1) 
+
+
+# Taken from http://lmullen.github.io/civil-procedure-codes/104-network-graphs-in-ggraph.html and not yet adapted
+# geom_edge_fan(aes(edge_width = sections_borrowed, 
+#                   alpha = sections_borrowed),
+#               arrow = arrow(type = "closed", ends = "first",
+#                             length = unit(0.20, "inches"),
+#                             angle = 15)) +
+# geom_node_point(size = 6, alpha = 0.75, aes(color = region)) +
+# geom_node_text(aes(label = name)) +
+# scale_edge_width("Sections borrowed", range = c(1, 2), guide = "none") + 
+# scale_edge_alpha(range = c(0.3, 0.4), guide = "none") 
+
+# geom_edge_fan(data = gEdges()(lay), 
+#             arrow = arrow(length = unit(.2, "inches"), type = "closed", ends = "first", angle = 15)) +
+  
+  
 
   # geom_point(data = lay, mapping = aes(x = x, y = y, shape = sex), 
   #            size = 2, color = "darkgray", fill = "gray") +
 baseplot + 
   scale_shape_manual(values = c("M" = 24, "F" = 25), guide = "none") +
+  geom_point(data = lay, mapping = aes(x = x, y = y), size = 8) +
   geom_text(data = lay, mapping = aes(x = x, y = y, label = vertex.names)
             # , vjust = 0, nudge_y = -2e3
             # , vjust = "outward", hjust = "outward"
             , size = 5, fontface = "bold"
             , color = "white" ) +
   theme(panel.background = element_rect(fill = "gray"))
-ggsave("results/mapWithNetwork-Style1.pdf", height = 8, width = 10)
+ggsave("results/mapWithNetwork-Style1.png", height = 8, width = 10)
 
 # OR 
 baseplot + 
