@@ -45,6 +45,7 @@ library(igraph)
 uncloc = 1:0  # quantiles of lat/long to place uncollared F's. e.g. 0, 1 puts at min/max
 net = readRDS("data/derived/network.RDS")
 inet = intergraph::asIgraph(net)
+
 lay = createLayout(inet, lay = "igraph", alg = "kk")
 ats = attributes(lay)
 lay = full_join(select(lay, -x, -y), centers, by = c("vertex.names" = "cat"))
@@ -60,57 +61,43 @@ move = function(cat, x, y = x, scl = diff(range(lay$x))) {
   lay$y[theCat] = lay$y[theCat] + y * scl
   lay
 }
-lay = move("M62", .1)
-lay = move("F47", .03, -.13)
-lay = move("F57", -.07)
-lay = move("F61", -.06, 0)
-lay = move("F51", 0, .04)
-lay = move("M21", -.1, 0)
-lay = move("M85", .04, 0)
+
+lay = move("M62", .1, .15)
+lay = move("F47", .2, -.3)
+lay = move("F57", -.1, 0)
+lay = move("F61", -.1, 0)
+lay = move("F51", 0, .09)
+lay = move("M21", -.2, .4)
+lay = move("M85", .04, .1)
+lay = move("F49", 0, -.1)
+lay = move("UncF", .3, -.3)
+lay = move("UncF2", .1, .95)
+
 
 baseplot = 
   filter(oneeach, ISOPLETH == .95, cat %in% c("M62", "M68", "M29", "M85")) %>%
   ggplot() +
   geom_polygon(aes(x = long, y = lat, group = interaction(group, cat), 
                    fill = cat), alpha = .7) +
-  scale_fill_brewer(palette = "Accent", name = "Territorial Males") +
+  scale_fill_brewer(palette = "Set1", name = "Territorial\nMales' Ranges") +
   coord_equal() +
   ggforce::theme_no_axes(base.theme = theme_bw(base_size = 18)) +
   geom_edge_fan(data = gEdges()(lay), aes(color = ..index..), 
-                spread = 1.8, n = 300, edge_width = .7) +
-  scale_edge_color_gradient(breaks = c(.15, .85), labels = c("Sharer", "Shared with"), 
-                            name = "Prey Shares", low = "black", high = "red")
-  # scale_edge_alpha('Shared kill with', guide = 'edge_direction', range = 0:1) 
-  # scale_edge_alpha('Shared kill with', guide = FALSE, range = 0:1) 
-
-
-# Taken from http://lmullen.github.io/civil-procedure-codes/104-network-graphs-in-ggraph.html and not yet adapted
-# geom_edge_fan(aes(edge_width = sections_borrowed, 
-#                   alpha = sections_borrowed),
-#               arrow = arrow(type = "closed", ends = "first",
-#                             length = unit(0.20, "inches"),
-#                             angle = 15)) +
-# geom_node_point(size = 6, alpha = 0.75, aes(color = region)) +
-# geom_node_text(aes(label = name)) +
-# scale_edge_width("Sections borrowed", range = c(1, 2), guide = "none") + 
-# scale_edge_alpha(range = c(0.3, 0.4), guide = "none") 
-
-# geom_edge_fan(data = gEdges()(lay), 
-#             arrow = arrow(length = unit(.2, "inches"), type = "closed", ends = "first", angle = 15)) +
-  
-  
-
-  # geom_point(data = lay, mapping = aes(x = x, y = y, shape = sex), 
-  #            size = 2, color = "darkgray", fill = "gray") +
+                spread = 1.8, n = 300
+                , edge_width = .85
+                ) +
+  scale_edge_color_gradient(breaks = c(.15, .85), labels = c("Sharer", "Receiver"), 
+                            name = "Prey Shares", low = "black", high = "white") +
+  guides(color = guide_colorbar(barwidth = 0.5))  # Doesn't work!?
 baseplot + 
   scale_shape_manual(values = c("M" = 24, "F" = 25), guide = "none") +
-  geom_point(data = lay, mapping = aes(x = x, y = y), size = 6) +
+  geom_point(data = lay, mapping = aes(x = x, y = y, size = weight_kg)) +
+  scale_size_continuous(range = c(4, 7), name = "Weight", breaks = c(40, 70), labels = c("40 kg", "70 kg")) + 
   geom_text(data = lay, mapping = aes(x = x, y = y, label = vertex.names)
-            # , vjust = 0, nudge_y = -2e3
-            # , vjust = "outward", hjust = "outward"
-            , size = 5, fontface = "bold"
+            , size = 4, fontface = "bold"
             , color = "white" ) +
-  theme(panel.background = element_rect(fill = "gray"))
+  theme(panel.background = element_rect(fill = "darkgray"))
+
 ggsave("results/mapWithNetwork-Style1.png", height = 8, width = 10)
 
 # OR 
