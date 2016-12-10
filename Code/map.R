@@ -73,14 +73,15 @@ baseplot =
   ggplot() +
   geom_polygon(aes(x = long, y = lat, group = interaction(group, cat), 
                    fill = cat), alpha = .7) +
-  scale_fill_brewer(palette = "Set1", name = "Territorial Males") +
-  # scale_fill_brewer(palette = "Set1", name = "Active Males'\nTerritories") +
+  scale_fill_brewer(palette = "Accent", name = "Territorial Males") +
   coord_equal() +
   ggforce::theme_no_axes(base.theme = theme_bw(base_size = 18)) +
-  geom_edge_fan(data = gEdges()(lay), aes(alpha = ..index..), 
+  geom_edge_fan(data = gEdges()(lay), aes(color = ..index..), 
                 spread = 1.8, n = 300, edge_width = .7) +
+  scale_edge_color_gradient(breaks = c(.15, .85), labels = c("Sharer", "Shared with"), 
+                            name = "Prey Shares", low = "black", high = "red")
   # scale_edge_alpha('Shared kill with', guide = 'edge_direction', range = 0:1) 
-  scale_edge_alpha('Shared kill with', guide = FALSE, range = 0:1) 
+  # scale_edge_alpha('Shared kill with', guide = FALSE, range = 0:1) 
 
 
 # Taken from http://lmullen.github.io/civil-procedure-codes/104-network-graphs-in-ggraph.html and not yet adapted
@@ -103,7 +104,7 @@ baseplot =
   #            size = 2, color = "darkgray", fill = "gray") +
 baseplot + 
   scale_shape_manual(values = c("M" = 24, "F" = 25), guide = "none") +
-  geom_point(data = lay, mapping = aes(x = x, y = y), size = 8) +
+  geom_point(data = lay, mapping = aes(x = x, y = y), size = 6) +
   geom_text(data = lay, mapping = aes(x = x, y = y, label = vertex.names)
             # , vjust = 0, nudge_y = -2e3
             # , vjust = "outward", hjust = "outward"
