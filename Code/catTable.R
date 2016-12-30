@@ -22,4 +22,21 @@ df =
   rename(cats_tolerated = inl, cats_tolerated_by = outl) %>%
   mutate(betweenness_centrality = betweenness(net),
          eigenvector_centrality = evcent(net))
-write_csv(df, "results/cat_table.csv")
+
+# Find communities and merge with above data frame:
+g = intergraph::asIgraph(net)
+# comm = cluster_walktrap(g)  # or, yielding identical communities:
+comm = igraph::cluster_edge_betweenness(g)
+comms = 
+  purrr::map_df(names(igraph::communities(comm)), function(x) 
+    data.frame(vertex.names = igraph::V(g)$vertex.names[igraph::communities(comm)[[x]]],
+               community = x)) 
+
+df = left_join(df, comms)
+
+# Sort by community, sex, and weight, in that order, and write to file:
+df %>%
+  arrange(community, 
+        desc(stringr::str_extract(vertex.names, "M|F")),
+        weight_kg) %>%
+write_csv("results/cat_table.csv")
