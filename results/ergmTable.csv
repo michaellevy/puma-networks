@@ -1,12 +1,15 @@
 term,binary_edges,valued_edges
-density,-3.62*** (0.84),0.52* (0.20)
-reciprocity,2.15** (0.81),0.83** (0.29)
-relatedness,2.58 (2.03),0.35 (0.64)
-territory overlap,1.07 (0.98),0.72* (0.31)
-male receiving,0.58 (0.51),0.38** (0.14)
-male sharing,-0.67 (0.45),-0.68** (0.23)
-transitivity,0.93. (0.47),0.29* (0.13)
-cyclicality,-0.21 (0.36),-0.09 (0.13)
-even-distribution receiving,1.54 (1.10),.
-even-distribution sharing,-0.54 (0.96),.
-any shares,.,-4.59*** (0.39)
+Behavioral Ecology Hypotheses,,
+Relatedness,2.22 (2.09),0.25 (0.68)
+Territory Overlap,1.44 (1.09),0.88* (0.37)
+Male Receiving,1.02 (0.65),0.42** (0.16)
+Male Sharing,-0.67 (0.47),-0.68** (0.26)
+Social Behavior Hypotheses,,
+Reciprocity,2.04* (0.83),0.78* (0.31)
+Transitivity,0.91* (0.46),0.28* (0.14)
+Cyclicality,-0.18 (0.36),-0.09 (0.14)
+Basic Network Attributes,,
+Density,-4.02*** (0.91),0.48* (0.22)
+Any Shares, ,-4.42*** (0.42)
+Even-Distribution Receiving,2.59. (1.52), 
+Even-Distribution Sharing,-0.45 (0.97), 

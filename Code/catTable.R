@@ -34,9 +34,29 @@ comms =
 
 df = left_join(df, comms)
 
-# Sort by community, sex, and weight, in that order, and write to file:
+# Sort by community, sex, and weight, in that order, 
+# Round the decimal values,
+# Sort and rename columns, 
+# and write to file:
 df %>%
   arrange(community, 
-        desc(stringr::str_extract(vertex.names, "M|F")),
-        weight_kg) %>%
-write_csv("results/cat_table.csv")
+          desc(stringr::str_extract(vertex.names, "M|F")),
+          weight_kg) %>% 
+  mutate(
+    weight_kg = round(weight_kg, 0),
+    betweenness_centrality = round(betweenness_centrality, 0),
+    eigenvector_centrality = round(eigenvector_centrality, 2)
+  ) %>%
+  select(
+    `Puma ID` = vertex.names,
+    `Age (months)` = age_months,
+    `Weight (kg)` = weight_kg,
+    Community = community,
+    `Outgoing tolerance` = outgoing_shares,
+    `Pumas tolerated` = cats_tolerated,
+    `Receiving tolerance` = incoming_shares,
+    `Pumas that exhibited tolerance to` = cats_tolerated_by,
+    `Betweenness centrality` = betweenness_centrality,
+    `Eigenvector centrality` = eigenvector_centrality
+  ) %>%
+  write_csv("results/cat_table.csv")

@@ -1,0 +1,6 @@
+ ,Receiving (In-Degree),Sharing (Out-Degree)
+Age (months),-0.09 (p = 0.77),0.213 (p = 0.48)
+Weight (kg),0.573 (p = 0.04),-0.283 (p = 0.35)
+Male (vs. female),0.442 (p = 0.13),-0.391 (p = 0.19)
+Spatial overlap,0.08 (p = 0.32),0.485 (p = 0)
+Relatedness,-0.011 (p = 0.89),-0.011 (p = 0.89)

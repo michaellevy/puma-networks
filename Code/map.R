@@ -8,9 +8,10 @@ library(maptools)
 layers = 
   str_split(list.files("data/HomeRanges/"), "\\.") %>%
   map_chr(`[`, 1) %>% unique %>% sort
+exclude = c(grep("M62", layers), length(layers))
 
 proj = 
-  lapply(layers[-length(layers)], function(x) {
+  lapply(layers[-exclude], function(x) {
     pdata = readOGR("data/HomeRanges/", layer = x)
     pdata@data$id = rownames(pdata@data)
     df = fortify(pdata, region = "id")
@@ -62,7 +63,7 @@ move = function(cat, x, y = x, scl = diff(range(lay$x))) {
   lay
 }
 
-lay = move("M62", .1, .15)
+# lay = move("M62", .1, .15)
 lay = move("F47", .2, -.3)
 lay = move("F57", -.1, 0)
 lay = move("F61", -.1, 0)
