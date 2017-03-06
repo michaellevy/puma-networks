@@ -83,7 +83,7 @@ write_csv(et, "results/ergmTable.csv", na = " ")
 
 # Goodness of fit
 bgof = gof(mBinary)
-png("results/binaryGOF.png")
+pdf("results/binaryGOF.pdf")
 par(mfrow = c(2, 2))
 plot(bgof)
 dev.off()

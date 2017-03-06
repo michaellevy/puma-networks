@@ -89,7 +89,7 @@ baseplot =
                 ) +
   scale_edge_color_gradient(breaks = c(.15, .85), labels = c("Sharer", "Receiver"), 
                             name = "Prey Shares", low = "black", high = "white") +
-  guides(color = guide_colorbar(barwidth = 0.5))  # Doesn't work!?
+  guides(edge_colour = guide_edge_colorbar(barwidth = 0.2))  # Doesn't work!?
 baseplot + 
   scale_shape_manual(values = c("M" = 24, "F" = 25), guide = "none") +
   geom_point(data = lay, mapping = aes(x = x, y = y, size = weight_kg)) +
