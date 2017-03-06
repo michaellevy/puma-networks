@@ -1,7 +1,7 @@
 # puma-networks
 Prey sharing networks of mountain lions
 
-![map with network](https://github.com/michaellevy/puma-networks/blob/master/results/mapWithNetwork.png?raw=true)
+![map with network](https://github.com/michaellevy/puma-networks/blob/master/results/mapWithNetwork-Style1.png?raw=true)
 
 Pipeline, as I use it as I remove M62:
 
